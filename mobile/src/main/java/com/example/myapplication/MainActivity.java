@@ -9,6 +9,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +19,7 @@ import android.os.Message;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -25,14 +29,19 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
+
 
 public class MainActivity extends AppCompatActivity {
 
     Button talkbutton;
     TextView textview;
     protected Handler myHandler;
+    private int[] sounds= new int[]{R.raw.fursrodah, R.raw.oof, R.raw.quack, R.raw.rubberduck, R.raw.xpshutdown, R.raw.xpstartup};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         talkbutton = findViewById(R.id.talkButton);
         textview = findViewById(R.id.textView);
+
+
 
         myHandler = new Handler(new Handler.Callback() {
             @Override
@@ -76,6 +87,13 @@ public class MainActivity extends AppCompatActivity {
                     //deprecated in API 26
                     v.vibrate(500);
                 }
+            }
+            else if(message.equals("Ring")){
+                Random rand = new Random();
+                int thingy = rand.nextInt(sounds.length);
+                int myUri = sounds[thingy];
+                final MediaPlayer mp = MediaPlayer.create(getApplicationContext(), myUri);
+                mp.start();
             }
 
         }
