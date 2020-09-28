@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     myCameraManager.setTorchMode(myCameraId, !flash);
+                    flash = !flash;
                 } catch (CameraAccessException e) {
                     e.printStackTrace();
                 }
