@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button button = (Button) view;
         String message = button.getText().toString();
-        textview.setText(message);
+        //textview.setText(message);
 
 //Sending a message can block the main UI thread, so use a new thread//
 
