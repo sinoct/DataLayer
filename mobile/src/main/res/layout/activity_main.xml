@@ -20,15 +20,16 @@
             android:id="@+id/talkButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Talk to the wearable"
             android:onClick="talkClick"
+            android:text="Test"
             tools:ignore="OnClick" />
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Sending Message..." />
+            android:gravity="center_horizontal"
+            android:text="Awaiting command..." />
 
     </LinearLayout>
 

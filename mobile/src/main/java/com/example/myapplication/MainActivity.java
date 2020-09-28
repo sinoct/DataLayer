@@ -34,6 +34,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -77,7 +78,8 @@ public class MainActivity extends AppCompatActivity {
 
             //String message = "I just received a message from the wearable " + receivedMessageNumber++;
             String message = intent.getStringExtra("message");
-            textview.setText(message);
+            textview.setText("Last Command: " + message);
+
             if (message.equals("Vibrate")){
                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 // Vibrate for 500 milliseconds
@@ -95,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
                 final MediaPlayer mp = MediaPlayer.create(getApplicationContext(), myUri);
                 mp.start();
             }
-
         }
     }
 
