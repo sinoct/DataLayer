@@ -9,6 +9,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraManager;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -43,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     TextView textview;
     protected Handler myHandler;
     private int[] sounds= new int[]{R.raw.fursrodah, R.raw.oof, R.raw.quack, R.raw.rubberduck, R.raw.xpshutdown, R.raw.xpstartup};
+    private boolean flash = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +100,23 @@ public class MainActivity extends AppCompatActivity {
                 int myUri = sounds[thingy];
                 final MediaPlayer mp = MediaPlayer.create(getApplicationContext(), myUri);
                 mp.start();
+            }
+            else if(message.equals("Flashlight")){
+                boolean isFlashAvailable = getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+                CameraManager myCameraManager = (CameraManager)getSystemService(Context.CAMERA_SERVICE);
+                String myCameraId = null;
+                try {
+                    myCameraId = myCameraManager.getCameraIdList()[0];
+                } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    myCameraManager.setTorchMode(myCameraId, !flash);
+                } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                }
+
             }
         }
     }

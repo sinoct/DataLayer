@@ -30,6 +30,13 @@
             android:onClick="buttonClick"
             android:text="Ring" />
 
+        <Button
+            android:id="@+id/flashlightButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="buttonClick"
+            android:text="Flashlight" />
+
         <TextView
             android:id="@+id/text"
             android:layout_width="wrap_content"
