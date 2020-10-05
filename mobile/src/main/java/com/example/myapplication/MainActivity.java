@@ -35,6 +35,7 @@ import com.google.android.gms.wearable.Wearable;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     protected Handler myHandler;
     private int[] sounds= new int[]{R.raw.fursrodah, R.raw.oof, R.raw.quack, R.raw.rubberduck, R.raw.xpshutdown, R.raw.xpstartup};
     private boolean flash = false;
-    private List<String> todoList;
+    public static ArrayList<String> todoList = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,11 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter messageFilter = new IntentFilter(Intent.ACTION_SEND);
         Receiver messageReceiver = new Receiver();
         LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver, messageFilter);
+    }
+
+    public void openToDoList(View view){
+        Intent intent = new Intent(this, TodoListActivity.class);
+        startActivity(intent);
     }
 
 
@@ -99,6 +105,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             else if(message.equals("Ring")){
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 Random rand = new Random();
                 int thingy = rand.nextInt(sounds.length);
                 int myUri = sounds[thingy];
@@ -138,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
             textview.setText("Enter a normal activity!");
         }
         else{
+            todoList.add(todo);
             new NewThread("/my_path", todo).start();
         }
 

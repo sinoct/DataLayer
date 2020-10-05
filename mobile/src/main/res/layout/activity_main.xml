@@ -6,52 +6,71 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/vertical_margin"
-        android:paddingLeft="@dimen/horizontal_margin"
-        android:paddingRight="@dimen/horizontal_margin"
-        android:paddingTop="@dimen/vertical_margin"
-        tools:context=".MainActivity">
+        android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/talkButton"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="talkClick"
-            android:text="Test"
-            tools:ignore="OnClick" />
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="Awaiting command..." />
+            <Button
+                android:id="@+id/talkButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="5dp"
+                android:onClick="talkClick"
+                android:text="Test"
+                app:layout_constraintBottom_toTopOf="@+id/textView"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="OnClick"
+                tools:layout_editor_absoluteX="1dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center_horizontal"
+                android:text="Awaiting command..."
+                app:layout_constraintBottom_toTopOf="@+id/todoListInput"
+                app:layout_constraintTop_toBottomOf="@+id/talkButton" />
 
             <EditText
                 android:id="@+id/todoListInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:ems="10"
                 android:hint="Enter your activity"
-                android:inputType="textPersonName" />
+                android:inputType="textPersonName"
+                app:layout_constraintBottom_toTopOf="@+id/todoListAddButton"
+                app:layout_constraintTop_toBottomOf="@+id/textView" />
 
             <Button
                 android:id="@+id/todoListAddButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:onClick="addToList"
-                android:text="Add To List" />
-        </LinearLayout>
+                android:text="Add To List"
+                app:layout_constraintBottom_toTopOf="@+id/todoListButton"
+                app:layout_constraintTop_toBottomOf="@+id/todoListInput"
+                tools:ignore="OnClick" />
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/todoListButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:onClick="openToDoList"
+                android:text="Open List"
+                app:layout_constraintTop_toBottomOf="@+id/todoListAddButton" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
