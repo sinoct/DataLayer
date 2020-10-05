@@ -20,6 +20,7 @@ import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -28,8 +29,7 @@ public class MainActivity extends WearableActivity {
 
     private TextView textView;
     Button talkButton;
-    int receivedMessageNumber = 1;
-    int sentMessageNumber = 1;
+    public static ArrayList<String> todoList = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +76,11 @@ public class MainActivity extends WearableActivity {
             new SendMessage(datapath, onClickMessage).start();
         }
 
+    public void openToDoList(View view){
+        Intent intent = new Intent(this, TodoListActivity.class);
+        startActivity(intent);
+    }
+
 
     public class Receiver extends BroadcastReceiver {
 
@@ -89,6 +94,7 @@ public class MainActivity extends WearableActivity {
             String message = intent.getStringExtra("message");
             textView.setText(message);
 
+            todoList.add(message);
         }
     }
 
