@@ -27,9 +27,30 @@
         <TextView
             android:id="@+id/textView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="Awaiting command..." />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/todoListInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Enter your activity"
+                android:inputType="textPersonName" />
+
+            <Button
+                android:id="@+id/todoListAddButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="addToList"
+                android:text="Add To List" />
+        </LinearLayout>
 
     </LinearLayout>
 

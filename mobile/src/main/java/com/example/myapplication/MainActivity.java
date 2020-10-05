@@ -25,6 +25,7 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.Task;
@@ -44,9 +45,11 @@ public class MainActivity extends AppCompatActivity {
 
     Button talkbutton;
     TextView textview;
+    EditText todoListInput;
     protected Handler myHandler;
     private int[] sounds= new int[]{R.raw.fursrodah, R.raw.oof, R.raw.quack, R.raw.rubberduck, R.raw.xpshutdown, R.raw.xpstartup};
     private boolean flash = false;
+    private List<String> todoList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         talkbutton = findViewById(R.id.talkButton);
         textview = findViewById(R.id.textView);
+        todoListInput = findViewById(R.id.todoListInput);
 
 
 
@@ -126,6 +130,17 @@ public class MainActivity extends AppCompatActivity {
         if (newinfo.compareTo("") != 0) {
             textview.append("\n" + newinfo);
         }
+    }
+
+    public void addToList(View view) {
+        String todo = todoListInput.getText().toString();
+        if(todo.equals("")){
+            textview.setText("Enter a normal activity!");
+        }
+        else{
+            new NewThread("/my_path", todo).start();
+        }
+
     }
 
     public void talkClick(View view) {
