@@ -14,33 +14,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <Button
-                android:id="@+id/talkButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="5dp"
-                android:onClick="talkClick"
-                android:text="Test"
-                app:layout_constraintBottom_toTopOf="@+id/textView"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="OnClick"
-                tools:layout_editor_absoluteX="1dp" />
-
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="32dp"
                 android:layout_marginBottom="10dp"
                 android:gravity="center_horizontal"
                 android:text="Awaiting command..."
                 app:layout_constraintBottom_toTopOf="@+id/todoListInput"
-                app:layout_constraintTop_toBottomOf="@+id/talkButton" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <EditText
                 android:id="@+id/todoListInput"
-                android:layout_width="match_parent"
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
@@ -48,28 +35,48 @@
                 android:hint="Enter your activity"
                 android:inputType="textPersonName"
                 app:layout_constraintBottom_toTopOf="@+id/todoListAddButton"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
 
             <Button
                 android:id="@+id/todoListAddButton"
-                android:layout_width="match_parent"
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
+                android:background="@drawable/buttons"
                 android:onClick="addToList"
                 android:text="Add To List"
                 app:layout_constraintBottom_toTopOf="@+id/todoListButton"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/todoListInput"
                 tools:ignore="OnClick" />
 
             <Button
                 android:id="@+id/todoListButton"
-                android:layout_width="match_parent"
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:background="@drawable/buttons"
                 android:onClick="openToDoList"
                 android:text="Open List"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/todoListAddButton" />
+
+            <Button
+                android:id="@+id/clearButton"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/buttons"
+                android:onClick="talkClick"
+                android:text="Clear List"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/todoListButton" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 

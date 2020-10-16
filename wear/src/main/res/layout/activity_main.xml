@@ -18,7 +18,6 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical">
-            <!--android:boxedEdges="all">-->
 
             <Button
                 android:id="@+id/talkClick"
@@ -47,6 +46,13 @@
                 android:layout_height="wrap_content"
                 android:onClick="openToDoList"
                 android:text="To Do List" />
+
+            <Button
+                android:id="@+id/clearButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="buttonClick"
+                android:text="Clear List" />
 
             <TextView
                 android:id="@+id/text"

@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,6 +15,8 @@ import java.util.ArrayList;
 public class TodoListActivity extends MainActivity {
 
     ListView todoListView;
+    public  static ArrayAdapter<String> adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,4 +38,5 @@ public class TodoListActivity extends MainActivity {
         });
 
     }
+
 }

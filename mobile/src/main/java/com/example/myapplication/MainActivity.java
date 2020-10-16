@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
@@ -27,6 +28,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -36,30 +38,43 @@ import com.google.android.gms.wearable.Wearable;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    Button talkbutton;
+    Button clearButton;
     TextView textview;
     EditText todoListInput;
     protected Handler myHandler;
     private int[] sounds= new int[]{R.raw.fursrodah, R.raw.oof, R.raw.quack, R.raw.rubberduck, R.raw.xpshutdown, R.raw.xpstartup};
     private boolean flash = false;
     public static ArrayList<String> todoList = new ArrayList<String>();
+    public static Set<String> todoSet = new HashSet<String>(todoList);
+    public boolean isListEmpty = true;
+    private SharedPreferences sharedPreferences;
+    private String saveFile = "cuculo";
+    private String STATE_LIST = "lista";
+    private String STATE_IS_EMPTY = "ures";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        talkbutton = findViewById(R.id.talkButton);
+        clearButton = findViewById(R.id.clearButton);
         textview = findViewById(R.id.textView);
         todoListInput = findViewById(R.id.todoListInput);
 
+        sharedPreferences = getSharedPreferences(saveFile, MODE_PRIVATE);
+
+        isListEmpty = sharedPreferences.getBoolean(STATE_IS_EMPTY,isListEmpty);
+        todoSet = sharedPreferences.getStringSet(STATE_LIST,todoSet);
+        //todoList.addAll(todoSet);
 
 
         myHandler = new Handler(new Handler.Callback() {
@@ -132,7 +147,9 @@ public class MainActivity extends AppCompatActivity {
                 } catch (CameraAccessException e) {
                     e.printStackTrace();
                 }
-
+            }
+            else if(message.equals("Clear List")){
+                todoList.clear();
             }
         }
     }
@@ -151,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
         else{
             todoList.add(todo);
             new NewThread("/my_path", todo).start();
+            Toast.makeText(this,"Added Activity To The List", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -159,7 +177,10 @@ public class MainActivity extends AppCompatActivity {
 
         Button button = (Button) view;
         String message = button.getText().toString();
-        //textview.setText(message);
+        if(message.equals("Clear List")){
+            todoList.clear();
+            Toast.makeText(this,"Cleared all activities", Toast.LENGTH_SHORT).show();
+        }
 
 //Sending a message can block the main UI thread, so use a new thread//
 
@@ -233,5 +254,14 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(STATE_IS_EMPTY,isListEmpty);
+        editor.putStringSet(STATE_LIST, todoSet);
+        editor.apply();
     }
 }

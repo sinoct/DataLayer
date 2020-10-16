@@ -14,9 +14,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.android.gms.wearable.MessageClient;
-import com.google.android.gms.wearable.MessageClient.OnMessageReceivedListener;
-import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 
@@ -39,21 +36,6 @@ public class MainActivity extends WearableActivity {
         textView =  findViewById(R.id.text);
         talkButton =  findViewById(R.id.talkClick);
 
-        /*talkButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Button button = (Button) v;
-                String onClickMessage = button.getText().toString();
-                textView.setText(onClickMessage);
-
-//Use the same path//
-
-                String datapath = "/my_path";
-                new SendMessage(datapath, onClickMessage).start();
-
-            }
-        });*/
-
         IntentFilter newFilter = new IntentFilter(Intent.ACTION_SEND);
         Receiver messageReceiver = new Receiver();
 
@@ -68,6 +50,9 @@ public class MainActivity extends WearableActivity {
 
             Button button = (Button) view;
             String onClickMessage = button.getText().toString();
+            if(onClickMessage.equals("Clear List")){
+                todoList.clear();
+            }
             textView.setText(onClickMessage);
 
 //Use the same path//
@@ -88,14 +73,14 @@ public class MainActivity extends WearableActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-
-//Display the following when a new message is received//
-
-            //String onMessageReceived = "I just received a message from the handheld " + receivedMessageNumber++;
             String message = intent.getStringExtra("message");
             textView.setText(message);
-
-            todoList.add(message);
+            if(message.equals("Clear List")){
+                todoList.clear();
+            }
+            else {
+                todoList.add(message);
+            }
         }
     }
 
