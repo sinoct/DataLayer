@@ -45,7 +45,7 @@ public class MainActivity extends WearableActivity {
         // Enables Always-on
         setAmbientEnabled();
     }
-
+//This sends the text displayed on the button, the phone will execute the corresponding action
         public void buttonClick(View view) {
 
             Button button = (Button) view;
@@ -54,8 +54,6 @@ public class MainActivity extends WearableActivity {
                 todoList.clear();
             }
             textView.setText(onClickMessage);
-
-//Use the same path//
 
             String datapath = "/my_path";
             new SendMessage(datapath, onClickMessage).start();
@@ -88,7 +86,7 @@ public class MainActivity extends WearableActivity {
         String path;
         String message;
 
-//Constructor for sending information to the Data Layer//
+//Constructor for sending information to the Data Layer
 
         SendMessage(String p, String m) {
             path = p;
@@ -97,18 +95,18 @@ public class MainActivity extends WearableActivity {
 
         public void run() {
 
-//Retrieve the connected devices//
+//Retrieve the connected devices
 
             Task<List<Node>> nodeListTask =
                     Wearable.getNodeClient(getApplicationContext()).getConnectedNodes();
             try {
 
-//Block on a task and get the result synchronously//
+//Block on a task and get the result synchronously
 
                 List<Node> nodes = Tasks.await(nodeListTask);
                 for (Node node : nodes) {
 
-//Send the message///
+//Send the message
 
                     Task<Integer> sendMessageTask =
                             Wearable.getMessageClient(MainActivity.this).sendMessage(node.getId(), path, message.getBytes());
@@ -117,15 +115,11 @@ public class MainActivity extends WearableActivity {
 
                         Integer result = Tasks.await(sendMessageTask);
 
-//Handle the errors//
+//Handle the errors
 
                     } catch (ExecutionException exception) {
 
-//TO DO//
-
                     } catch (InterruptedException exception) {
-
-//TO DO//
 
                     }
 
@@ -133,11 +127,7 @@ public class MainActivity extends WearableActivity {
 
             } catch (ExecutionException exception) {
 
-//TO DO//
-
             } catch (InterruptedException exception) {
-
-//TO DO//
 
             }
         }

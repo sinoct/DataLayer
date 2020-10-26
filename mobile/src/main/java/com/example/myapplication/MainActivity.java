@@ -77,15 +77,6 @@ public class MainActivity extends AppCompatActivity {
         //todoList.addAll(todoSet);
 
 
-        myHandler = new Handler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(Message msg) {
-                Bundle stuff = msg.getData();
-                messageText(stuff.getString("messageText"));
-                return true;
-            }
-        });
-
         IntentFilter messageFilter = new IntentFilter(Intent.ACTION_SEND);
         Receiver messageReceiver = new Receiver();
         LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver, messageFilter);
@@ -103,19 +94,17 @@ public class MainActivity extends AppCompatActivity {
 
         public void onReceive(Context context, Intent intent) {
 
-//Upon receiving each message from the wearable, display the following text//
-
-            //String message = "I just received a message from the wearable " + receivedMessageNumber++;
+            //Store the received message
             String message = intent.getStringExtra("message");
+            //Display the received message, this is mainly for debugging
             textview.setText("Last Command: " + message);
 
+            //Do the corresponding action for the received message
             if (message.equals("Vibrate")){
                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-// Vibrate for 500 milliseconds
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
                 } else {
-                    //deprecated in API 26
                     v.vibrate(500);
                 }
             }
@@ -125,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                //It picks a random sound effect from the ones stored in the /raw folder inside the resources, then plays the sound effect
                 Random rand = new Random();
                 int thingy = rand.nextInt(sounds.length);
                 int myUri = sounds[thingy];
@@ -133,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
             }
             else if(message.equals("Flashlight")){
                 boolean isFlashAvailable = getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+                //This is used to find the camera modules on the phone, then it's id is stored
                 CameraManager myCameraManager = (CameraManager)getSystemService(Context.CAMERA_SERVICE);
                 String myCameraId = null;
                 try {
@@ -140,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (CameraAccessException e) {
                     e.printStackTrace();
                 }
-
+                //Toggle the flashlight on the phone
                 try {
                     myCameraManager.setTorchMode(myCameraId, !flash);
                     flash = !flash;
@@ -154,12 +145,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void messageText(String newinfo) {
-        if (newinfo.compareTo("") != 0) {
-            textview.append("\n" + newinfo);
-        }
-    }
-
+//Adds the entered activity to the to-do list
     public void addToList(View view) {
         String todo = todoListInput.getText().toString();
         if(todo.equals("")){
@@ -167,12 +153,12 @@ public class MainActivity extends AppCompatActivity {
         }
         else{
             todoList.add(todo);
-            new NewThread("/my_path", todo).start();
+            new SendMessage("/my_path", todo).start();
             Toast.makeText(this,"Added Activity To The List", Toast.LENGTH_SHORT).show();
         }
 
     }
-
+//Clears the to-do list and sends the "Clear List" string to the watch telling it to clear it's list too
     public void talkClick(View view) {
 
         Button button = (Button) view;
@@ -182,59 +168,44 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this,"Cleared all activities", Toast.LENGTH_SHORT).show();
         }
 
-//Sending a message can block the main UI thread, so use a new thread//
+//Sending a message can block the main UI thread, so use a new thread
 
-        new NewThread("/my_path", message).start();
+        new SendMessage("/my_path", message).start();
     }
 
-    public void sendmessage(String messageText) {
-        Bundle bundle = new Bundle();
-        bundle.putString("messageText", messageText);
-        Message msg = myHandler.obtainMessage();
-        msg.setData(bundle);
-        myHandler.sendMessage(msg);
-
-    }
-
-    class NewThread extends Thread {
+    class SendMessage extends Thread {
         String path;
         String message;
 
-//Constructor for sending information to the Data Layer//
+//Constructor for sending information to the Data Layer
 
-        NewThread(String p, String m) {
+        SendMessage(String p, String m) {
             path = p;
             message = m;
         }
 
         public void run() {
 
-//Retrieve the connected devices, known as nodes//
+//Retrieve the connected devices, known as nodes
 
-            Task<List<Node>> wearableList =
-                    Wearable.getNodeClient(getApplicationContext()).getConnectedNodes();
+            Task<List<Node>> wearableList = Wearable.getNodeClient(getApplicationContext()).getConnectedNodes();
             try {
-
                 List<Node> nodes = Tasks.await(wearableList);
                 for (Node node : nodes) {
                     Task<Integer> sendMessageTask =
-
-//Send the message//
-
                             Wearable.getMessageClient(MainActivity.this).sendMessage(node.getId(), path, message.getBytes());
 
                     try {
 
-//Block on a task and get the result synchronously//
+//Block on a task and get the result synchronously
 
                         Integer result = Tasks.await(sendMessageTask);
-                        //sendmessage("I just sent the wearable a message " + sentMessageNumber++);
 
-                        //if the Task fails, then…..//
+                        //if the Task fails, then…..
 
                     } catch (ExecutionException exception) {
 
-                        //TO DO: Handle the exception//
+                        //TO DO: Handle the exception
 
                     } catch (InterruptedException exception) {
 
