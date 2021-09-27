@@ -2,6 +2,7 @@
 <androidx.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/dark_grey"
@@ -53,6 +54,13 @@
                 android:layout_height="wrap_content"
                 android:onClick="buttonClick"
                 android:text="Clear List" />
+
+            <Button
+                android:id="@+id/image_receiver_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="openImageReceiver"
+                android:text="Receive Image" />
 
             <TextView
                 android:id="@+id/text"

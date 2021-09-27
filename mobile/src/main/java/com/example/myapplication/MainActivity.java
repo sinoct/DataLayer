@@ -87,6 +87,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void openImageSender(View view) {
+        Intent intent = new Intent(this, PhotoSenderActivity.class);
+        startActivity(intent);
+    }
+
 
     public class Receiver extends BroadcastReceiver {
         @RequiresApi(api = Build.VERSION_CODES.O)
@@ -152,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
             textview.setText("Enter a normal activity!");
         }
         else{
+            todoListInput.setText("");
             todoList.add(todo);
             new SendMessage("/my_path", todo).start();
             Toast.makeText(this,"Added Activity To The List", Toast.LENGTH_SHORT).show();

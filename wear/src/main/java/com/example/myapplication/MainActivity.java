@@ -1,14 +1,24 @@
 package com.example.myapplication;
 
+import android.app.Activity;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -19,9 +29,10 @@ import com.google.android.gms.wearable.Wearable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends WearableActivity {
+public class MainActivity extends Activity {
 
 
     private TextView textView;
@@ -41,11 +52,40 @@ public class MainActivity extends WearableActivity {
 
         LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver, newFilter);
 
+        View.OnKeyListener wrist = new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if(keyCode == KeyEvent.KEYCODE_NAVIGATE_NEXT || keyCode == KeyEvent.KEYCODE_NAVIGATE_PREVIOUS){
+                    new SendMessage("/my_path", "Flashlight").start();
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        findViewById(R.id.layout).setOnKeyListener(wrist);
+
 
         // Enables Always-on
-        setAmbientEnabled();
+        //setAmbientEnabled();
     }
-//This sends the text displayed on the button, the phone will execute the corresponding action
+
+
+    //@Override /* KeyEvent.Callback */
+    /*public boolean onKeyDown(int keyCode, KeyEvent event) {
+        String datapath = "/my_path";
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_NAVIGATE_NEXT:
+                new SendMessage(datapath, "Flashlight").start();
+            case KeyEvent.KEYCODE_NAVIGATE_PREVIOUS:
+                // Do something that advances a user View to the previous item in an ordered list.
+                //new SendMessage(datapath, "Flashlight").start();
+        }
+        // If you did not handle it, let it be handled by the next possible element as deemed by the Activity.
+        return super.onKeyDown(keyCode, event);
+    }*/
+
+    //This sends the text displayed on the button, the phone will execute the corresponding action
         public void buttonClick(View view) {
 
             Button button = (Button) view;
@@ -64,6 +104,13 @@ public class MainActivity extends WearableActivity {
         startActivity(intent);
     }
 
+    public void openImageReceiver(View view) {
+        Intent intent = new Intent(this, PhotoReceiverActivity.class);
+        startActivity(intent);
+    }
+
+
+
 
 
     public class Receiver extends BroadcastReceiver {
@@ -77,6 +124,7 @@ public class MainActivity extends WearableActivity {
                 todoList.clear();
             }
             else {
+                Log.d("MSG:", message);
                 todoList.add(message);
             }
         }
