@@ -19,20 +19,12 @@ import android.graphics.Bitmap;
 
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
-/**
- * Classes representing data used for each custom {@link ViewHolder} in {@link
- * CustomRecyclerAdapter}.
- */
 public class DataLayerScreen {
 
     public static final int TYPE_IMAGE_ASSET = 0;
     public static final int TYPE_EVENT_LOGGING = 1;
     public static final int TYPE_CAPABILITY_DISCOVERY = 2;
 
-    /**
-     * All classes representing data for {@link ViewHolder} must implement this interface so {@link
-     * CustomRecyclerAdapter} knows what type of {@link ViewHolder} to inflate.
-     */
     public interface DataLayerScreenData {
         int getType();
     }

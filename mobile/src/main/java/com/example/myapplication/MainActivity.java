@@ -18,6 +18,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.VibrationEffect;
@@ -35,7 +36,12 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -54,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
     protected Handler myHandler;
     private int[] sounds= new int[]{R.raw.fursrodah, R.raw.oof, R.raw.quack, R.raw.rubberduck, R.raw.xpshutdown, R.raw.xpstartup};
     private boolean flash = false;
-    public static ArrayList<String> todoList = new ArrayList<String>();
-    public static Set<String> todoSet = new HashSet<String>(todoList);
+    public static ArrayList<TodoListItem> todoList = new ArrayList<>();
+    // public static Set<String> todoSet = new HashSet<String>(todoList);
     public boolean isListEmpty = true;
     private SharedPreferences sharedPreferences;
     private String saveFile = "cuculo";
@@ -69,11 +75,35 @@ public class MainActivity extends AppCompatActivity {
         clearButton = findViewById(R.id.clearButton);
         textview = findViewById(R.id.textView);
         todoListInput = findViewById(R.id.todoListInput);
+        String path = this.getFilesDir().getPath();
+        File mFolder = new File(getFilesDir() + "/files");
+        File listFile = new File(mFolder.getAbsolutePath() + "/list.tmp");
+        if (!mFolder.exists()) {
+            mFolder.mkdir();
+        }
+        if (!listFile.exists()) {
+            try {
+                listFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream fileIn = new FileInputStream(getFilesDir() + "/files/list.tmp");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            todoList = (ArrayList<TodoListItem>) in.readObject();
+            in.close();
+            System.out.println("BEOLVAS");
+            fileIn.close();
+        } catch (IOException | ClassNotFoundException i) {
+            i.printStackTrace();
+        }
 
         sharedPreferences = getSharedPreferences(saveFile, MODE_PRIVATE);
 
         isListEmpty = sharedPreferences.getBoolean(STATE_IS_EMPTY,isListEmpty);
-        todoSet = sharedPreferences.getStringSet(STATE_LIST,todoSet);
+        //todoSet = sharedPreferences.getStringSet(STATE_LIST,todoSet);
         //todoList.addAll(todoSet);
 
 
@@ -146,6 +176,16 @@ public class MainActivity extends AppCompatActivity {
             }
             else if(message.equals("Clear List")){
                 todoList.clear();
+                try {
+                    FileOutputStream fileOut = new FileOutputStream( getFilesDir() + "/files/list.tmp");
+                    ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                    out.writeObject(todoList);
+                    out.close();
+                    fileOut.close();
+                    Log.d("SUCCESS","Serialized data is saved in /tmp/list.tmp");
+                } catch (IOException i) {
+                    i.printStackTrace();
+                }
             }
         }
     }
@@ -158,7 +198,18 @@ public class MainActivity extends AppCompatActivity {
         }
         else{
             todoListInput.setText("");
-            todoList.add(todo);
+            TodoListItem tmpItem = new TodoListItem(todo, false);
+            todoList.add(tmpItem);
+            try {
+                FileOutputStream fileOut = new FileOutputStream( getFilesDir() + "/files/list.tmp");
+                ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                out.writeObject(todoList);
+                out.close();
+                fileOut.close();
+                Log.d("SUCCESS","Serialized data is saved in /tmp/list.tmp");
+            } catch (IOException i) {
+                i.printStackTrace();
+            }
             new SendMessage("/my_path", todo).start();
             Toast.makeText(this,"Added Activity To The List", Toast.LENGTH_SHORT).show();
         }
@@ -238,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(STATE_IS_EMPTY,isListEmpty);
-        editor.putStringSet(STATE_LIST, todoSet);
+        //editor.putStringSet(STATE_LIST, todoSet);
         editor.apply();
     }
 }

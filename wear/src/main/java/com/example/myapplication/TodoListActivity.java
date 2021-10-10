@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -23,8 +24,8 @@ public class TodoListActivity extends WearableActivity {
         setContentView(R.layout.todolist_layout);
         todoListView = findViewById(R.id.todoListView);
         final ArrayList<String> lista = new ArrayList<String>();
-        for (String item : MainActivity.todoList) {
-            lista.add(item);
+        for (TodoListItem item : MainActivity.todoList) {
+            lista.add(item.title);
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.simple_text, lista);
         todoListView.setAdapter(adapter);
@@ -32,9 +33,13 @@ public class TodoListActivity extends WearableActivity {
         todoListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                TodoListItem tmpItem = MainActivity.todoList.get(i);
+                tmpItem.status = true;
+                MainActivity.todoList.set(i, tmpItem);
                 view.setBackgroundColor(Color.parseColor("#32ad09"));
             }
         });
 
     }
+
 }

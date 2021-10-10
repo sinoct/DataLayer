@@ -12,6 +12,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -20,6 +21,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.tasks.Task;
@@ -27,6 +29,13 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -37,7 +46,7 @@ public class MainActivity extends Activity {
 
     private TextView textView;
     Button talkButton;
-    public static ArrayList<String> todoList = new ArrayList<String>();
+    public static ArrayList<TodoListItem> todoList = new ArrayList<TodoListItem>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +55,30 @@ public class MainActivity extends Activity {
 
         textView =  findViewById(R.id.text);
         talkButton =  findViewById(R.id.talkClick);
+
+        File mFolder = new File(getFilesDir() + "/files");
+        File listFile = new File(mFolder.getAbsolutePath() + "/list.tmp");
+        if (!mFolder.exists()) {
+            mFolder.mkdir();
+        }
+        if (!listFile.exists()) {
+            try {
+                listFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInputStream fileIn = new FileInputStream(getFilesDir() + "/files/list.tmp");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            todoList = (ArrayList<TodoListItem>) in.readObject();
+            in.close();
+            System.out.println("BEOLVAS");
+            fileIn.close();
+        } catch (IOException | ClassNotFoundException i) {
+            i.printStackTrace();
+        }
 
         IntentFilter newFilter = new IntentFilter(Intent.ACTION_SEND);
         Receiver messageReceiver = new Receiver();
@@ -92,6 +125,16 @@ public class MainActivity extends Activity {
             String onClickMessage = button.getText().toString();
             if(onClickMessage.equals("Clear List")){
                 todoList.clear();
+                try {
+                    FileOutputStream fileOut = new FileOutputStream( getFilesDir() + "/files/list.tmp");
+                    ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                    out.writeObject(todoList);
+                    out.close();
+                    fileOut.close();
+                    Log.d("SUCCESS","Serialized data is saved in /tmp/list.tmp");
+                } catch (IOException i) {
+                    i.printStackTrace();
+                }
             }
             textView.setText(onClickMessage);
 
@@ -125,7 +168,18 @@ public class MainActivity extends Activity {
             }
             else {
                 Log.d("MSG:", message);
-                todoList.add(message);
+                TodoListItem tmpItem = new TodoListItem(message, false);
+                todoList.add(tmpItem);
+                try {
+                    FileOutputStream fileOut = new FileOutputStream( getFilesDir() + "/files/list.tmp");
+                    ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                    out.writeObject(todoList);
+                    out.close();
+                    fileOut.close();
+                    Log.d("SUCCESS","Serialized data is saved in /tmp/list.tmp");
+                } catch (IOException i) {
+                    i.printStackTrace();
+                }
             }
         }
     }
