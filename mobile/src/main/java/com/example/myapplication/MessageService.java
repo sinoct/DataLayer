@@ -16,7 +16,7 @@ public class MessageService extends WearableListenerService {
 
 //Check if the received message has it's path set to "/my_path"
 
-        if (messageEvent.getPath().equals("/my_path")) {
+        if (messageEvent.getPath().equals("/command")) {
 
             final String message = new String(messageEvent.getData());
             Intent messageIntent = new Intent();

@@ -36,6 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -47,6 +48,7 @@ public class MainActivity extends Activity {
     private TextView textView;
     Button talkButton;
     public static ArrayList<TodoListItem> todoList = new ArrayList<TodoListItem>();
+    public Receiver messageReceiver = new Receiver();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,15 +83,14 @@ public class MainActivity extends Activity {
         }
 
         IntentFilter newFilter = new IntentFilter(Intent.ACTION_SEND);
-        Receiver messageReceiver = new Receiver();
-
+        messageReceiver = new Receiver();
         LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver, newFilter);
 
         View.OnKeyListener wrist = new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if(keyCode == KeyEvent.KEYCODE_NAVIGATE_NEXT || keyCode == KeyEvent.KEYCODE_NAVIGATE_PREVIOUS){
-                    new SendMessage("/my_path", "Flashlight").start();
+                    new SendMessage("/command", "Flashlight").start();
                     return true;
                 }
                 return false;
@@ -104,19 +105,14 @@ public class MainActivity extends Activity {
     }
 
 
-    //@Override /* KeyEvent.Callback */
-    /*public boolean onKeyDown(int keyCode, KeyEvent event) {
-        String datapath = "/my_path";
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_NAVIGATE_NEXT:
-                new SendMessage(datapath, "Flashlight").start();
-            case KeyEvent.KEYCODE_NAVIGATE_PREVIOUS:
-                // Do something that advances a user View to the previous item in an ordered list.
-                //new SendMessage(datapath, "Flashlight").start();
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        String datapath = "/command";
+        if (keyCode == KeyEvent.KEYCODE_NAVIGATE_NEXT) {
+            new SendMessage(datapath, "Flashlight").start();
         }
-        // If you did not handle it, let it be handled by the next possible element as deemed by the Activity.
         return super.onKeyDown(keyCode, event);
-    }*/
+    }
 
     //This sends the text displayed on the button, the phone will execute the corresponding action
         public void buttonClick(View view) {
@@ -131,14 +127,14 @@ public class MainActivity extends Activity {
                     out.writeObject(todoList);
                     out.close();
                     fileOut.close();
-                    Log.d("SUCCESS","Serialized data is saved in /tmp/list.tmp");
+                    Log.d("SUCCESS","Serialized data is saved in /files/list.tmp");
                 } catch (IOException i) {
                     i.printStackTrace();
                 }
             }
             textView.setText(onClickMessage);
 
-            String datapath = "/my_path";
+            String datapath = "/command";
             new SendMessage(datapath, onClickMessage).start();
         }
 
@@ -233,5 +229,11 @@ public class MainActivity extends Activity {
 
             }
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReceiver);
     }
 }

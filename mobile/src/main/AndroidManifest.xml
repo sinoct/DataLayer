@@ -7,7 +7,7 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/remote"
-        android:label="Magic"
+        android:label="PhoneBuddy"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -17,10 +17,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
-
-                <!--//Specify your path, and a host for the filter. Here, I’m using a wildcard host//-->
-
-                <data android:scheme="wear" android:host="*" android:pathPrefix="/my_path" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/command" />
             </intent-filter>
         </service>
 

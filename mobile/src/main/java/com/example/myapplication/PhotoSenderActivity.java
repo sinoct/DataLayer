@@ -46,29 +46,21 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class PhotoSenderActivity extends AppCompatActivity implements DataClient.OnDataChangedListener,
-        MessageClient.OnMessageReceivedListener,
-        CapabilityClient.OnCapabilityChangedListener {
+        MessageClient.OnMessageReceivedListener{
 
 
     private static final String TAG = "MainActivity";
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
 
-    private static final String START_ACTIVITY_PATH = "/start-activity";
-    private static final String COUNT_PATH = "/count";
     private static final String IMAGE_PATH = "/image";
     private static final String IMAGE_KEY = "photo";
-    private static final String COUNT_KEY = "count";
 
     Button takePhotoButton;
     Button sendPhotoButton;
     ImageView imageContainer;
     private Bitmap mImageBitmap;
 
-    private DataItemAdapter mDataItemListAdapter;
-
-    private ScheduledExecutorService mGeneratorExecutor;
-    private ScheduledFuture<?> mDataItemGeneratorFuture;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,36 +69,6 @@ public class PhotoSenderActivity extends AppCompatActivity implements DataClient
         takePhotoButton = findViewById(R.id.take_photo_button);
         sendPhotoButton = findViewById(R.id.send_photo_button);
         imageContainer = findViewById(R.id.image_container);
-
-        mDataItemListAdapter = new DataItemAdapter(this, android.R.layout.simple_list_item_1);
-        // mDataItemList.setAdapter(mDataItemListAdapter);
-
-        mGeneratorExecutor = new ScheduledThreadPoolExecutor(1);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mDataItemGeneratorFuture =
-                mGeneratorExecutor.scheduleWithFixedDelay(
-                        new DataItemGenerator(), 1, 5, TimeUnit.SECONDS);
-
-        // Instantiates clients without member variables, as clients are inexpensive to create and
-        // won't lose their listeners. (They are cached and shared between GoogleApi instances.)
-        Wearable.getDataClient(this).addListener(this);
-        Wearable.getMessageClient(this).addListener(this);
-        Wearable.getCapabilityClient(this)
-                .addListener(this, Uri.parse("wear://"), CapabilityClient.FILTER_REACHABLE);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mDataItemGeneratorFuture.cancel(true /* mayInterruptIfRunning */);
-
-        Wearable.getDataClient(this).removeListener(this);
-        Wearable.getMessageClient(this).removeListener(this);
-        Wearable.getCapabilityClient(this).removeListener(this);
     }
 
     public void takePhotoClick(View view) {
@@ -122,7 +84,6 @@ public class PhotoSenderActivity extends AppCompatActivity implements DataClient
     private void sendPhoto(Asset asset) {
         PutDataMapRequest dataMap = PutDataMapRequest.create(IMAGE_PATH);
         dataMap.getDataMap().putAsset(IMAGE_KEY, asset);
-        dataMap.getDataMap().putLong("time", new Date().getTime());
         PutDataRequest request = dataMap.asPutDataRequest();
         request.setUrgent();
 
@@ -145,9 +106,9 @@ public class PhotoSenderActivity extends AppCompatActivity implements DataClient
         }
     }
 
-    @SuppressLint("MissingSuperCall")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             mImageBitmap = (Bitmap) extras.get("data");
@@ -177,21 +138,11 @@ public class PhotoSenderActivity extends AppCompatActivity implements DataClient
 
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_CHANGED) {
-                mDataItemListAdapter.add(
-                        new Event("DataItem Changed", event.getDataItem().toString()));
             } else if (event.getType() == DataEvent.TYPE_DELETED) {
-                mDataItemListAdapter.add(
-                        new Event("DataItem Deleted", event.getDataItem().toString()));
             }
         }
     }
 
-    @Override
-    public void onCapabilityChanged(final CapabilityInfo capabilityInfo) {
-        Log.d(TAG, "onCapabilityChanged: " + capabilityInfo);
-
-        mDataItemListAdapter.add(new Event("onCapabilityChanged", capabilityInfo.toString()));
-    }
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
@@ -202,83 +153,8 @@ public class PhotoSenderActivity extends AppCompatActivity implements DataClient
                         + " "
                         + messageEvent.getPath());
 
-        mDataItemListAdapter.add(new Event("Message from watch", messageEvent.toString()));
     }
 
-    private static class DataItemAdapter extends ArrayAdapter<Event> {
 
-        private final Context mContext;
 
-        public DataItemAdapter(Context context, int unusedResource) {
-            super(context, unusedResource);
-            mContext = context;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder;
-            if (convertView == null) {
-                holder = new ViewHolder();
-                LayoutInflater inflater =
-                        (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(android.R.layout.two_line_list_item, null);
-                convertView.setTag(holder);
-                holder.text1 = (TextView) convertView.findViewById(android.R.id.text1);
-                holder.text2 = (TextView) convertView.findViewById(android.R.id.text2);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
-            Event event = getItem(position);
-            holder.text1.setText(event.title);
-            holder.text2.setText(event.text);
-            return convertView;
-        }
-
-        private class ViewHolder {
-            TextView text1;
-            TextView text2;
-        }
-    }
-
-    private class Event {
-
-        String title;
-        String text;
-
-        public Event(String title, String text) {
-            this.title = title;
-            this.text = text;
-        }
-    }
-
-    private class DataItemGenerator implements Runnable {
-        private int count = 0;
-        @Override
-        public void run() {
-            PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(COUNT_PATH);
-            putDataMapRequest.getDataMap().putInt(COUNT_KEY, count++);
-
-            PutDataRequest request = putDataMapRequest.asPutDataRequest();
-            request.setUrgent();
-
-            Log.d(TAG, "Generating DataItem: " + request);
-
-            Task<DataItem> dataItemTask =
-                    Wearable.getDataClient(getApplicationContext()).putDataItem(request);
-
-            try {
-                // Block on a task and get the result synchronously (because this is on a background
-                // thread).
-                DataItem dataItem = Tasks.await(dataItemTask);
-
-                Log.d(TAG, "DataItem saved: " + dataItem);
-
-            } catch (ExecutionException exception) {
-                Log.e(TAG, "Task failed: " + exception);
-
-            } catch (InterruptedException exception) {
-                Log.e(TAG, "Interrupt occurred: " + exception);
-            }
-        }
-    }
 }

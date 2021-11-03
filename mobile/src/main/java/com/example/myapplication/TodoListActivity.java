@@ -13,19 +13,17 @@ import java.util.ArrayList;
 public class TodoListActivity extends AppCompatActivity {
 
     ListView todoListView;
-    public  static ArrayAdapter<String> adapter;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.todolist_layout);
         todoListView = findViewById(R.id.todoListView);
-        ArrayList<String> lista =  new ArrayList<>();
+        ArrayList<String> list =  new ArrayList<>();
         for (TodoListItem item : MainActivity.todoList) {
-            lista.add(item.title);
+            list.add(item.title);
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,R.layout.simple_text,lista);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,R.layout.simple_text,list);
         todoListView.setAdapter(adapter);
 
         todoListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

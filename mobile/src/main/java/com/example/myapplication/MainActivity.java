@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.gms.wearable.MessageOptions;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 
@@ -57,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
     Button clearButton;
     TextView textview;
     EditText todoListInput;
-    protected Handler myHandler;
     private int[] sounds= new int[]{R.raw.fursrodah, R.raw.oof, R.raw.quack, R.raw.rubberduck, R.raw.xpshutdown, R.raw.xpstartup};
     private boolean flash = false;
     public static ArrayList<TodoListItem> todoList = new ArrayList<>();
@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
             ObjectInputStream in = new ObjectInputStream(fileIn);
             todoList = (ArrayList<TodoListItem>) in.readObject();
             in.close();
-            System.out.println("BEOLVAS");
             fileIn.close();
         } catch (IOException | ClassNotFoundException i) {
             i.printStackTrace();
@@ -210,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException i) {
                 i.printStackTrace();
             }
-            new SendMessage("/my_path", todo).start();
+            new SendMessage("/command", todo).start();
             Toast.makeText(this,"Added Activity To The List", Toast.LENGTH_SHORT).show();
         }
 
@@ -227,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
 //Sending a message can block the main UI thread, so use a new thread
 
-        new SendMessage("/my_path", message).start();
+        new SendMessage("/command", message).start();
     }
 
     class SendMessage extends Thread {
@@ -245,9 +244,9 @@ public class MainActivity extends AppCompatActivity {
 
 //Retrieve the connected devices, known as nodes
 
-            Task<List<Node>> wearableList = Wearable.getNodeClient(getApplicationContext()).getConnectedNodes();
+            Task<List<Node>> connectedNodes = Wearable.getNodeClient(getApplicationContext()).getConnectedNodes();
             try {
-                List<Node> nodes = Tasks.await(wearableList);
+                List<Node> nodes = Tasks.await(connectedNodes);
                 for (Node node : nodes) {
                     Task<Integer> sendMessageTask =
                             Wearable.getMessageClient(MainActivity.this).sendMessage(node.getId(), path, message.getBytes());
@@ -257,16 +256,15 @@ public class MainActivity extends AppCompatActivity {
 //Block on a task and get the result synchronously
 
                         Integer result = Tasks.await(sendMessageTask);
-
-                        //if the Task fails, then…..
+                        Log.d("SUCCESS","Task finished successfully: " + result);
 
                     } catch (ExecutionException exception) {
 
-                        //TO DO: Handle the exception
+                        Log.d("ERROR","Error encountered during execution: " + exception);
 
                     } catch (InterruptedException exception) {
 
-                        //TO DO: Handle the exception//
+                        Log.d("ERROR","Execution was interruped: " + exception);
 
                     }
 
@@ -274,11 +272,11 @@ public class MainActivity extends AppCompatActivity {
 
             } catch (ExecutionException exception) {
 
-                //TO DO: Handle the exception//
+                Log.d("ERROR","Error encountered during execution: " + exception);
 
             } catch (InterruptedException exception) {
 
-                //TO DO: Handle the exception//
+                Log.d("ERROR","Execution was interruped: " + exception);
             }
 
         }
